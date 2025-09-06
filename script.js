@@ -59,10 +59,20 @@ class ParticleSystem {
     }
     
     bindEvents() {
+        // Mouse events
         document.addEventListener('mousemove', (e) => {
             this.mouseX = e.clientX;
             this.mouseY = e.clientY;
             this.updateCursor(e.clientX, e.clientY);
+        });
+        
+        // Touch events for mobile
+        document.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.mouseX = touch.clientX;
+            this.mouseY = touch.clientY;
+            this.updateCursor(touch.clientX, touch.clientY);
         });
         
         document.addEventListener('touchmove', (e) => {
@@ -73,9 +83,26 @@ class ParticleSystem {
             this.updateCursor(touch.clientX, touch.clientY);
         });
         
+        // Prevent scrolling on mobile
+        document.addEventListener('touchmove', (e) => {
+            if (e.target === document.body) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
         window.addEventListener('resize', () => {
             this.handleResize();
         });
+        
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     }
     
     updateCursor(x, y) {
